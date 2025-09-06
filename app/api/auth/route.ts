@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-import connectDB from '@/app/lib/db';
-import User from '@/app/models/User';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -31,28 +29,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required user information' }, { status: 400 });
     }
 
-    // Connect to database
-    await connectDB();
-
-    // Find or create user
-    let user = await User.findOne({ googleId });
-    
-    if (user) {
-      // Update last login
-      user.lastLoginAt = new Date();
-      await user.save();
-    } else {
-      // Create new user
-      user = await User.create({
-        email,
-        name,
-        photo: picture || '',
-        googleId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastLoginAt: new Date(),
-      });
-    }
+    // 临时解决方案：跳过数据库操作，直接创建用户对象
+    const user = {
+      _id: googleId, // 使用googleId作为临时ID
+      email,
+      name,
+      photo: picture || '',
+      googleId,
+      usage: {
+        freeTrialsRemaining: 10,
+        totalTransformations: 0,
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastLoginAt: new Date(),
+    };
 
     // Generate JWT token
     const token = jwt.sign(
