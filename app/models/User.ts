@@ -1,5 +1,4 @@
 import mongoose, { Document, Types } from 'mongoose';
-import { CONFIG } from '../config/constants';
 
 export interface IUserDocument extends Document {
   _id: Types.ObjectId;
@@ -38,7 +37,7 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   usage: {
     freeTrialsRemaining: {
       type: Number,
-      default: CONFIG.FREE_TRIAL.AUTHENTICATED_USER_LIMIT,
+      default: 10,
     },
     totalTransformations: {
       type: Number,
