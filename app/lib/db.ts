@@ -12,14 +12,16 @@ console.log('Environment variables:', {
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
+if (!MONGODB_URI && process.env.NODE_ENV !== 'production') {
   console.error('MONGODB_URI is not defined in environment variables');
   throw new Error('Please define the MONGODB_URI environment variable inside .env');
 }
 
 // Log connection string (without password)
-const sanitizedUri = MONGODB_URI.replace(/(mongodb:\/\/[^:]+:)([^@]+)@/, '$1****@');
-console.log('Connecting to MongoDB:', sanitizedUri);
+if (MONGODB_URI) {
+  const sanitizedUri = MONGODB_URI.replace(/(mongodb:\/\/[^:]+:)([^@]+)@/, '$1****@');
+  console.log('Connecting to MongoDB:', sanitizedUri);
+}
 
 let cached = global.mongoose;
 
@@ -28,6 +30,10 @@ if (!cached) {
 }
 
 async function connectDB() {
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI is not defined');
+  }
+  
   if (cached.conn) {
     console.log('Using cached database connection');
     return cached.conn;

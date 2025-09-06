@@ -7,14 +7,6 @@ export interface IUserDocument extends Document {
   name: string;
   photo: string;
   googleId: string;
-  subscription: {
-    status: 'free' | 'active' | 'cancelled' | 'expired';
-    plan: 'free' | 'basic' | 'premium';
-    startDate?: Date;
-    endDate?: Date;
-    stripeCustomerId?: string;
-    stripeSubscriptionId?: string;
-  };
   usage: {
     freeTrialsRemaining: number;
     totalTransformations: number;
@@ -42,22 +34,6 @@ const userSchema = new mongoose.Schema<IUserDocument>({
     type: String,
     required: true,
     unique: true,
-  },
-  subscription: {
-    status: {
-      type: String,
-      enum: ['free', 'active', 'cancelled', 'expired'],
-      default: 'free',
-    },
-    plan: {
-      type: String,
-      enum: ['free', 'basic', 'premium'],
-      default: 'free',
-    },
-    startDate: Date,
-    endDate: Date,
-    stripeCustomerId: String,
-    stripeSubscriptionId: String,
   },
   usage: {
     freeTrialsRemaining: {
