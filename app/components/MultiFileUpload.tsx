@@ -238,12 +238,13 @@ export default function MultiFileUpload({
       {/* 文件拖拽区域 */}
       <div
         className={`
-          relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+          relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300
           ${isDragOver 
-            ? 'border-indigo-500 bg-indigo-50' 
-            : 'border-gray-300 hover:border-gray-400'
+            ? 'border-white/60 bg-white/20 backdrop-blur-md' 
+            : 'border-white/30 hover:border-white/50 hover:bg-white/10'
           }
-          ${files.length > 0 ? 'border-green-500 bg-green-50' : ''}
+          ${files.length > 0 ? 'border-green-400/60 bg-green-400/20' : ''}
+          glass
         `}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -259,20 +260,20 @@ export default function MultiFileUpload({
           className="hidden"
         />
         
-        <div className="space-y-4">
-          <div className="mx-auto w-16 h-16 text-gray-400">
+        <div className="space-y-6">
+          <div className="mx-auto w-20 h-20 text-white/80">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
           <div>
-            <p className="text-lg font-medium text-gray-900">
+            <p className="text-2xl font-bold text-white mb-2">
               {files.length === 0 
-                ? `点击选择图片或拖拽到此处${allowMultiple ? '（支持多选）' : ''}`
+                ? `拖拽图片到这里${allowMultiple ? '或点击选择多个文件' : ''}`
                 : `已选择 ${files.length} 个文件`
               }
             </p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-white/70 text-lg">
               支持 JPG、PNG、WebP 格式，单个文件最大 10MB，最多 {maxFiles} 个文件
             </p>
           </div>
@@ -281,15 +282,15 @@ export default function MultiFileUpload({
 
       {/* 文件列表 */}
       {files.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">文件列表 ({files.length})</h3>
-            <div className="flex space-x-2">
+        <div className="glass-card p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-white">文件列表 ({files.length})</h3>
+            <div className="flex space-x-3">
               {pendingCount > 0 && (
                 <button
                   onClick={uploadAllFiles}
                   disabled={isUploading}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+                  className="gradient-btn px-6 py-3 rounded-full font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUploading ? '上传中...' : `上传全部 (${pendingCount})`}
                 </button>
@@ -298,7 +299,7 @@ export default function MultiFileUpload({
                 <button
                   onClick={retryFailedFiles}
                   disabled={isUploading}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+                  className="px-6 py-3 bg-red-500/80 text-white rounded-full font-medium hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
                 >
                   重试失败 ({errorCount})
                 </button>
@@ -306,7 +307,7 @@ export default function MultiFileUpload({
               <button
                 onClick={clearAllFiles}
                 disabled={isUploading}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
+                className="px-6 py-3 bg-white/20 text-white rounded-full font-medium hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm border border-white/30"
               >
                 清空全部
               </button>
@@ -315,24 +316,33 @@ export default function MultiFileUpload({
 
           {/* 统计信息 */}
           {(completedCount > 0 || errorCount > 0) && (
-            <div className="mb-4 flex space-x-4 text-sm">
+            <div className="mb-6 flex space-x-6 text-lg">
               {completedCount > 0 && (
-                <span className="text-green-600">✅ 成功: {completedCount}</span>
+                <span className="flex items-center text-green-200">
+                  <span className="mr-2">✅</span>
+                  成功: {completedCount}
+                </span>
               )}
               {errorCount > 0 && (
-                <span className="text-red-600">❌ 失败: {errorCount}</span>
+                <span className="flex items-center text-red-200">
+                  <span className="mr-2">❌</span>
+                  失败: {errorCount}
+                </span>
               )}
               {pendingCount > 0 && (
-                <span className="text-gray-600">⏳ 待上传: {pendingCount}</span>
+                <span className="flex items-center text-white/70">
+                  <span className="mr-2">⏳</span>
+                  待上传: {pendingCount}
+                </span>
               )}
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {files.map((fileItem) => (
-              <div key={fileItem.id} className="border rounded-lg p-4 space-y-3">
+              <div key={fileItem.id} className="glass p-6 rounded-2xl space-y-4 border border-white/20">
                 {/* 预览图片 */}
-                <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <div className="relative aspect-square bg-white/10 rounded-xl overflow-hidden">
                   <Image
                     src={fileItem.previewUrl}
                     alt={fileItem.file.name}
@@ -342,30 +352,30 @@ export default function MultiFileUpload({
                   <button
                     onClick={() => removeFile(fileItem.id)}
                     disabled={fileItem.status === 'uploading'}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="absolute top-3 right-3 bg-red-500/80 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
                   >
                     ×
                   </button>
                 </div>
 
                 {/* 文件信息 */}
-                <div className="space-y-1">
-                  <p className="text-sm font-medium truncate" title={fileItem.file.name}>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-white truncate" title={fileItem.file.name}>
                     {fileItem.file.name}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-white/60">
                     {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
 
                 {/* 状态和进度 */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      fileItem.status === 'pending' ? 'bg-gray-100 text-gray-600' :
-                      fileItem.status === 'uploading' ? 'bg-blue-100 text-blue-600' :
-                      fileItem.status === 'completed' ? 'bg-green-100 text-green-600' :
-                      'bg-red-100 text-red-600'
+                    <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                      fileItem.status === 'pending' ? 'bg-white/20 text-white/80' :
+                      fileItem.status === 'uploading' ? 'bg-blue-400/30 text-blue-200' :
+                      fileItem.status === 'completed' ? 'bg-green-400/30 text-green-200' :
+                      'bg-red-400/30 text-red-200'
                     }`}>
                       {fileItem.status === 'pending' ? '待上传' :
                        fileItem.status === 'uploading' ? '上传中' :
@@ -373,23 +383,23 @@ export default function MultiFileUpload({
                        '上传失败'}
                     </span>
                     {fileItem.status === 'uploading' && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-white/70 font-medium">
                         {Math.round(fileItem.progress)}%
                       </span>
                     )}
                   </div>
 
                   {fileItem.status === 'uploading' && (
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div className="w-full bg-white/20 rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-blue-400 to-purple-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${fileItem.progress}%` }}
                       />
                     </div>
                   )}
 
                   {fileItem.status === 'error' && fileItem.error && (
-                    <p className="text-xs text-red-600">{fileItem.error}</p>
+                    <p className="text-xs text-red-200 bg-red-500/20 px-2 py-1 rounded">{fileItem.error}</p>
                   )}
 
                   {fileItem.status === 'completed' && fileItem.response?.data?.fileUrl && (
@@ -397,7 +407,7 @@ export default function MultiFileUpload({
                       href={fileItem.response.data.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:text-blue-800 underline"
+                      className="gradient-btn text-xs px-4 py-2 rounded-full font-medium inline-block"
                     >
                       查看文件
                     </a>
