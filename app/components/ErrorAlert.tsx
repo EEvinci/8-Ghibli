@@ -40,15 +40,15 @@ export default function ErrorAlert({
   }
 
   const typeStyles = {
-    error: 'bg-red-50 border-red-200 text-red-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800'
+    error: 'bg-red-500/20 border-red-400/30 text-red-100',
+    warning: 'bg-yellow-500/20 border-yellow-400/30 text-yellow-100',
+    info: 'bg-blue-500/20 border-blue-400/30 text-blue-100'
   };
 
   const iconStyles = {
-    error: 'text-red-400',
-    warning: 'text-yellow-400',
-    info: 'text-blue-400'
+    error: 'text-red-300',
+    warning: 'text-yellow-300',
+    info: 'text-blue-300'
   };
 
   const iconPaths = {
@@ -59,28 +59,34 @@ export default function ErrorAlert({
 
   return (
     <div className={`
-      border rounded-lg p-4 mb-4 transition-all duration-300 ease-in-out
+      glass border rounded-2xl p-6 mb-6 transition-all duration-300 ease-in-out backdrop-blur-md
       ${typeStyles[type]}
       ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
     `}>
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          <svg 
-            className={`h-5 w-5 ${iconStyles[type]}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2" 
-              d={iconPaths[type]}
-            />
-          </svg>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            type === 'error' ? 'bg-red-500/20' : 
+            type === 'warning' ? 'bg-yellow-500/20' : 
+            'bg-blue-500/20'
+          }`}>
+            <svg 
+              className={`h-5 w-5 ${iconStyles[type]}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth="2" 
+                d={iconPaths[type]}
+              />
+            </svg>
+          </div>
         </div>
-        <div className="ml-3 flex-1">
-          <p className="text-sm font-medium">{error}</p>
+        <div className="ml-4 flex-1">
+          <p className="text-base font-medium">{error}</p>
         </div>
         {onDismiss && (
           <div className="ml-auto pl-3">
@@ -91,14 +97,14 @@ export default function ErrorAlert({
                   setTimeout(() => onDismiss?.(), 300);
                 }}
                 className={`
-                  inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2
-                  ${type === 'error' ? 'text-red-500 hover:bg-red-100 focus:ring-red-600' : ''}
-                  ${type === 'warning' ? 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600' : ''}
-                  ${type === 'info' ? 'text-blue-500 hover:bg-blue-100 focus:ring-blue-600' : ''}
+                  inline-flex rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 backdrop-blur-sm
+                  ${type === 'error' ? 'text-red-300 hover:bg-red-500/20 focus:ring-red-400' : ''}
+                  ${type === 'warning' ? 'text-yellow-300 hover:bg-yellow-500/20 focus:ring-yellow-400' : ''}
+                  ${type === 'info' ? 'text-blue-300 hover:bg-blue-500/20 focus:ring-blue-400' : ''}
                 `}
               >
                 <span className="sr-only">关闭</span>
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
