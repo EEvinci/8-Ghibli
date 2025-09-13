@@ -2,6 +2,9 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import MultiFileUpload from "./components/MultiFileUpload";
+import ErrorAlert from "./components/ErrorAlert";
+import { UploadResponse } from "./lib/upload";
 
 interface LoggedInUser {
   id: string;
@@ -13,6 +16,8 @@ interface LoggedInUser {
 export default function Home() {
   const [user, setUser] = useState<LoggedInUser | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadResponse[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
   // 检查用户登录状态
@@ -62,6 +67,18 @@ export default function Home() {
     setAvatarMenuOpen(false);
   }
 
+  // 处理批量上传完成
+  const handleUploadComplete = (responses: UploadResponse[]) => {
+    console.log('批量上传完成:', responses);
+    setUploadedFiles(responses);
+    setError(null);
+  };
+
+  // 处理上传错误
+  const handleUploadError = (errorMessage: string) => {
+    setError(errorMessage);
+  };
+
   return (
     <div className="min-h-screen bg-[#FFFFE5]">
       {/* Header */}
@@ -71,12 +88,12 @@ export default function Home() {
             <div className="flex items-center">
               <Image
                 src="/images/icons/use1.png"
-                alt="Ghibli Dreamer"
+                alt="Photo Upload App"
                 width={32}
                 height={32}
                 className="mr-3"
               />
-              <h1 className="text-xl font-bold text-gray-900">Ghibli Dreamer</h1>
+              <h1 className="text-xl font-bold text-gray-900">Photo Upload App</h1>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -124,22 +141,109 @@ export default function Home() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            将您的照片转换为吉卜力风格
+            安全上传和管理您的照片
           </h2>
-          <p className="text-lg text-gray-600">
-            上传您的图片，选择风格，让AI为您创造神奇的艺术作品
+          <p className="text-lg text-gray-600 mb-4">
+            上传您的图片到安全的云端存储，随时随地访问和管理
           </p>
+          
+          {/* 功能导航 */}
+          <div className="flex justify-center space-x-4">
+            <span className="px-4 py-2 text-indigo-600 border-b-2 border-indigo-600 font-medium">
+              基础上传
+            </span>
+            <Link
+              href="/enhanced-upload"
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 border-b-2 border-transparent hover:border-gray-300"
+            >
+              增强上传
+            </Link>
+            <Link
+              href="/storage-test"
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 border-b-2 border-transparent hover:border-gray-300"
+            >
+              功能测试
+            </Link>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="text-gray-400 mb-4">
-            <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">上传图片功能即将推出</h3>
-          <p className="text-gray-600">我们正在开发中，敬请期待！</p>
+        {/* 错误提示 */}
+        <ErrorAlert 
+          error={error} 
+          onDismiss={() => setError(null)}
+          autoDismiss={true}
+          autoDismissDelay={5000}
+        />
+
+        {/* 批量文件上传组件 */}
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <MultiFileUpload 
+            onUploadComplete={handleUploadComplete}
+            onError={handleUploadError}
+            maxFiles={10}
+            allowMultiple={true}
+          />
         </div>
+
+        {/* 批量上传成功提示 */}
+        {uploadedFiles.length > 0 && (
+          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-green-800">
+                  成功上传 {uploadedFiles.length} 个文件！
+                </p>
+                <div className="mt-3 space-y-2">
+                  {uploadedFiles.map((uploadedFile, index) => (
+                    <div key={index} className="bg-white rounded p-3 border border-green-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-800">
+                            {uploadedFile.data?.originalName}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            大小: {uploadedFile.data?.fileSize ? (uploadedFile.data.fileSize / 1024 / 1024).toFixed(2) : '0'}MB
+                            {uploadedFile.data?.mode === 'local' && (
+                              <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                                本地模式
+                              </span>
+                            )}
+                            {uploadedFile.data?.databaseSaved === false && uploadedFile.data?.mode !== 'local' && (
+                              <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                                数据库未保存
+                              </span>
+                            )}
+                            {uploadedFile.data?.databaseSaved === true && (
+                              <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                已保存到MongoDB
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                        {uploadedFile.data?.fileUrl && (
+                          <a 
+                            href={uploadedFile.data.fileUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-800 underline ml-3"
+                          >
+                            查看文件
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

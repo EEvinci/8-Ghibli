@@ -1,133 +1,137 @@
-# Ghibli Dreamer
+# Photo Upload App (vibe-coding-Ghibli)
 
-一个将照片转换为吉卜力风格的Web应用程序。
+一个基于Next.js的安全图片上传和管理应用，支持Google OAuth登录和MongoDB云端存储。
 
-## 核心功能
+## 🚀 项目功能现状
 
-根据要求，此项目只保留了以下核心功能：
+### ✅ **已实现功能**
 
-### 1. 前端表单 + 登录操作
-- **Google OAuth 登录**：使用Google账号登录
-- **JWT认证**：基于JWT的用户认证系统
-- **localStorage持久登录**：简单的本地存储持久化登录状态
+#### 🔐 **用户认证系统**
+- **Google OAuth登录** - 使用NextAuth.js
+- **用户数据存储** - 自动保存到MongoDB
+- **会话管理** - JWT和Session处理
+- **登录页面** - `/login` - 完整的UI和用户体验
 
-### 2. 后端 JWT 认证 + MongoDB 存储
-- **JWT认证**：无状态的JWT令牌认证
-- **MongoDB数据库**：使用Mongoose ODM进行数据管理
-- **用户模型**：存储用户基本信息和使用统计
+#### 📸 **图片上传系统**
+- **批量文件上传** - 支持同时上传多个文件（最多10个）
+- **多格式支持** - JPG、PNG、WebP格式
+- **实时上传进度** - 显示上传状态和进度条
+- **文件验证** - 文件类型和大小验证（最大10MB）
+- **上传历史** - 显示上传成功的文件列表
 
-### 3. 上传图片功能实现
-- **前端文件上传组件**：支持拖拽和点击上传
-- **图片预览**：上传后立即预览
-- **AWS S3存储**：图片存储在AWS S3云服务
-- **文件验证**：支持多种图片格式，最大5MB
+#### 🗄️ **数据存储系统**
+- **MongoDB集成** - 文件元数据存储在云端数据库
+- **本地文件存储** - 图片文件保存在 `public/storage/` 目录
+- **数据模型** - 完整的用户和文件元数据模型
+- **存储统计** - 实时文件统计和存储使用情况
 
-### 4. Ghibli 风格生成 API 接入
-- **OpenAI DALL-E 2集成**：调用OpenAI API进行图片风格转换
-- **多种风格支持**：Ghibli、水彩、漫画、动漫风格
-- **前端输入 → 后端处理 → 返回结果图**的完整流程
-- **下载功能**：支持下载转换后的高清图片
-- **失败处理**：完善的错误处理和用户提示
+#### 🛠️ **技术架构**
+- **Next.js 15** - App Router架构
+- **TypeScript** - 完整类型支持
+- **Tailwind CSS** - 响应式UI设计
+- **Mongoose** - MongoDB ODM
+- **NextAuth.js** - 认证解决方案
 
-## 技术栈
+### ❌ **已知问题和缺失功能**
 
-### 前端
-- **Next.js 15** - React框架
-- **TypeScript** - 类型安全
-- **Tailwind CSS** - 样式框架
-- **React Hooks** - 状态管理
+#### 🚨 **前端显示但后端未实现的功能**
+1. **增强上传页面** (`/enhanced-upload`) - **404错误**
+   - 前端导航显示此选项
+   - 后端页面不存在
+   - 需要创建对应的页面组件
 
-### 后端
-- **Next.js API Routes** - 服务端API
-- **JWT** - 身份认证
-- **MongoDB + Mongoose** - 数据存储
-- **Google Auth Library** - Google OAuth验证
+2. **功能测试页面** (`/storage-test`) - **404错误**
+   - 前端导航显示此选项
+   - 后端页面不存在
+   - 需要创建对应的页面组件
 
-### 第三方服务
-- **OpenAI DALL-E 2** - AI图片生成
-- **AWS S3** - 文件存储
-- **Google OAuth 2.0** - 用户认证
+#### 🔐 **Google登录问题**
+- **症状**: 点击Google登录按钮无响应，无法跳转到Google账号选择页面
+- **错误**: `outgoing request timed out after 3500ms`
+- **可能原因**: 
+  - 网络代理配置问题（检测到代理：`http://127.0.0.1:7890`）
+  - Google OAuth配置问题
+  - NextAuth.js配置需要优化
+- **状态**: 网络可以访问Google服务，但OAuth流程超时
 
-## 项目结构
+#### ⚠️ **数据库警告**
+- **Mongoose索引重复警告**: `Duplicate schema index on {"hash":1}`
+- **影响**: 不影响功能，但会产生警告信息
+- **需要**: 清理重复的索引定义
+
+### 📊 **当前数据统计**
+
+根据实际运行数据：
+- **数据库连接**: ✅ 正常
+- **已上传文件**: 4个文件（约9.3MB总大小）
+- **MongoDB集合**: 
+  - `users`: 0个用户（登录问题导致）
+  - `filemetadatas`: 4个文件记录
+- **存储位置**: `public/storage/images/uploads/2025/09/`
+
+### 🎯 **主要页面功能**
+
+#### **主页面** (`/`) - ✅ **功能正常**
+- 显示应用标题："Photo Upload App"
+- 三个功能导航：基础上传（当前页面）、增强上传、功能测试
+- 批量文件上传组件（MultiFileUpload）
+- 上传成功后显示文件列表和MongoDB存储状态
+- 错误提示和处理
+
+#### **登录页面** (`/login`) - ⚠️ **部分功能异常**
+- UI界面正常显示
+- Google登录按钮存在
+- 但Google OAuth流程超时，无法完成登录
+
+### 🛠️ **技术栈**
 
 ```
-app/
-├── api/                    # API路由
-│   ├── auth/              # JWT认证
-│   ├── upload/            # 文件上传
-│   ├── transform/         # 图片转换
-│   └── download/          # 图片下载
-├── components/            # (已清理，无额外组件)
-├── config/               # 配置文件
-├── lib/                  # 工具库
-│   ├── db.ts            # MongoDB连接
-│   └── authOptions.ts   # 认证配置
-├── models/               # 数据模型
-│   ├── User.ts          # 用户模型
-│   └── Image.ts         # 图片模型
-├── login/               # 登录页面
-└── page.tsx            # 主页
+Frontend: Next.js 15 + React 19 + TypeScript + Tailwind CSS
+Backend: Next.js API Routes + NextAuth.js
+Database: MongoDB Atlas + Mongoose ODM
+Authentication: Google OAuth 2.0
+Storage: Local File System + MongoDB Metadata
 ```
 
-## 环境变量
-
-需要配置以下环境变量：
+### 📋 **环境配置**
 
 ```env
-# MongoDB
-MONGODB_URI=your_mongodb_connection_string
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
-
-# JWT
-JWT_SECRET=your_jwt_secret
-
-# AWS S3
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-AWS_REGION=your_aws_region
-S3_BUCKET_NAME=your_s3_bucket_name
-
-# OpenAI
-OPENAI_API_KEY=your_openai_api_key
+# 已配置的环境变量
+MONGODB_URI=mongodb+srv://...  ✅
+GOOGLE_CLIENT_ID=...           ✅  
+GOOGLE_CLIENT_SECRET=...       ✅
+NEXTAUTH_URL=...              ✅
+NEXTAUTH_SECRET=...           ✅
 ```
 
-## 运行项目
+## 🚀 **快速开始**
 
-```bash
-# 安装依赖
-npm install
+1. **安装依赖**:
+   ```bash
+   npm install
+   ```
 
-# 运行开发服务器
-npm run dev
+2. **配置环境变量**:
+   - 复制 `.env.example` 为 `.env`
+   - 填入您的MongoDB和Google OAuth凭据
 
-# 构建生产版本
-npm run build
+3. **启动开发服务器**:
+   ```bash
+   npm run dev
+   ```
 
-# 启动生产服务器
-npm start
-```
+4. **访问应用**:
+   - 主应用: http://localhost:3000
+   - 登录页面: http://localhost:3000/login
 
-## 功能说明
+## 📞 **支持和问题反馈**
 
-1. **用户认证**：用户可以使用Google账号登录，登录状态通过JWT令牌和localStorage维持
-2. **图片上传**：支持拖拽或点击上传图片，自动预览并上传到AWS S3
-3. **风格转换**：选择风格后，调用OpenAI DALL-E 2 API进行图片风格转换
-4. **结果展示**：转换完成后展示结果图片，支持下载
-5. **使用限制**：未登录用户有限制次数，登录用户有更多免费使用次数
-
-## 已移除功能
-
-为了简化项目，已移除以下功能：
-- Stripe支付系统
-- 订阅管理
-- 用户资料页面
-- 发票和订阅历史
-- NextAuth.js (改用简单JWT认证)
-- 复杂的用户状态管理
+如遇到问题，请检查：
+1. MongoDB连接状态
+2. Google OAuth配置
+3. 网络代理设置
+4. 环境变量配置
 
 ---
 
-此项目专注于核心的图片上传和AI风格转换功能，提供简洁而完整的用户体验。
+**注意**: 此项目正在开发中，部分功能（增强上传、功能测试）尚未实现。

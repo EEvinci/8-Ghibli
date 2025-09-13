@@ -40,9 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# uploads
+# uploads and storage
 /public/uploads/
 public/uploads/
+/public/storage/
+public/storage/
 
 # IDE
 .idea/

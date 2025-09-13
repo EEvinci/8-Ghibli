@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.812.0",
+    "@next-auth/mongodb-adapter": "^1.1.3",
     "@types/jsonwebtoken": "^9.0.9",
     "axios": "^1.9.0",
     "dotenv": "^16.5.0",
@@ -18,7 +19,6 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.3",
     "next-auth": "^4.24.11",
-    "openai": "^4.100.0",
     "react": "^19.0.0",
     "react-compare-image": "^3.5.9",
     "react-dom": "^19.0.0",
