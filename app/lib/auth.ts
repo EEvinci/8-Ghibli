@@ -3,6 +3,23 @@ import GoogleProvider from 'next-auth/providers/google';
 import connectDB from './db';
 import User from '../models/User';
 
+// 扩展NextAuth类型定义
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      image?: string;
+      googleId: string;
+      usage: {
+        freeTrialsRemaining: number;
+        totalTransformations: number;
+      };
+    }
+  }
+}
+
 /**
  * NextAuth.js 配置
  * 
@@ -24,7 +41,7 @@ export const authOptions: NextAuthOptions = {
         }
       },
       httpOptions: {
-        timeout: 10000,
+        timeout: 10000
       }
     })
   ],

@@ -2,9 +2,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import MultiFileUpload from "./components/MultiFileUpload";
-import ErrorAlert from "./components/ErrorAlert";
-import { UploadResponse } from "./lib/upload";
+import GhibliTransform from "./components/GhibliTransform";
 
 interface LoggedInUser {
   id: string;
@@ -16,23 +14,36 @@ interface LoggedInUser {
 export default function Home() {
   const [user, setUser] = useState<LoggedInUser | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<UploadResponse[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
   // 检查用户登录状态
   useEffect(() => {
     // 确保在客户端运行
     if (typeof window !== 'undefined') {
+      // 检查NextAuth session
       const token = localStorage.getItem('jwt');
       const userData = localStorage.getItem('user');
       
-      if (token && userData) {
+      // 检查模拟登录状态
+      const mockUser = localStorage.getItem('mock_user');
+      const mockToken = localStorage.getItem('mock_token');
+      
+      if (mockUser && mockToken) {
+        // 使用模拟用户数据
+        try {
+          setUser(JSON.parse(mockUser));
+          console.log('使用开发模式登录');
+        } catch (error) {
+          console.error('Error parsing mock user data:', error);
+          localStorage.removeItem('mock_user');
+          localStorage.removeItem('mock_token');
+        }
+      } else if (token && userData) {
+        // 使用真实用户数据
         try {
           setUser(JSON.parse(userData));
         } catch (error) {
           console.error('Error parsing user data:', error);
-          // 清除无效数据
           localStorage.removeItem('jwt');
           localStorage.removeItem('user');
         }
@@ -60,29 +71,32 @@ export default function Home() {
   // 处理登出
   function handleLogout() {
     if (typeof window !== 'undefined') {
+      // 清除NextAuth数据
       localStorage.removeItem('jwt');
       localStorage.removeItem('user');
+      localStorage.removeItem('userState');
+      
+      // 清除模拟登录数据
+      localStorage.removeItem('mock_user');
+      localStorage.removeItem('mock_token');
+      localStorage.removeItem('mock_login_time');
     }
     setUser(null);
     setAvatarMenuOpen(false);
   }
 
-  // 处理批量上传完成
-  const handleUploadComplete = (responses: UploadResponse[]) => {
-    console.log('批量上传完成:', responses);
-    setUploadedFiles(responses);
-    setError(null);
-  };
-
-  // 处理上传错误
-  const handleUploadError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
 
   return (
-    <div className="min-h-screen bg-[#FFFFE5]">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
+        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style={{animationDelay: '4s'}}></div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="glass-header relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -93,7 +107,7 @@ export default function Home() {
                 height={32}
                 className="mr-3"
               />
-              <h1 className="text-xl font-bold text-gray-900">Photo Upload App</h1>
+              <h1 className="text-xl font-bold text-white">Ghibli图像风格生成</h1>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -101,23 +115,23 @@ export default function Home() {
                 <div className="relative" ref={avatarRef}>
                   <button
                     onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-                    className="flex items-center space-x-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="flex items-center space-x-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/50"
                   >
                     <Image
                       src={user.photo || '/images/icons/use1.png'}
                       alt={user.name}
                       width={32}
                       height={32}
-                      className="rounded-full"
+                      className="rounded-full border-2 border-white/30"
                     />
-                    <span className="text-gray-700">{user.name}</span>
+                    <span className="text-white font-medium">{user.name}</span>
                   </button>
 
                   {avatarMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <div className="absolute right-0 mt-2 w-48 glass rounded-md py-1 z-10">
                       <button
                         onClick={handleLogout}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        className="block px-4 py-2 text-sm text-white hover:bg-white/10 w-full text-left rounded-md mx-1"
                       >
                         登出
                       </button>
@@ -127,7 +141,7 @@ export default function Home() {
               ) : (
                 <Link
                   href="/login"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+                  className="gradient-btn px-6 py-2 rounded-full text-sm font-medium shadow-lg"
                 >
                   登录
                 </Link>
@@ -138,111 +152,23 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            安全上传和管理您的照片
+      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12 animate-fadeInUp">
+          <h2 className="text-5xl font-bold text-white mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            Ghibli图像风格生成
           </h2>
-          <p className="text-lg text-gray-600 mb-4">
-            上传您的图片到安全的云端存储，随时随地访问和管理
+          <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+            上传您的图片，体验AI驱动的吉卜力风格转换
           </p>
-          
-          {/* 功能导航 */}
-          <div className="flex justify-center space-x-4">
-            <span className="px-4 py-2 text-indigo-600 border-b-2 border-indigo-600 font-medium">
-              基础上传
-            </span>
-            <Link
-              href="/enhanced-upload"
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 border-b-2 border-transparent hover:border-gray-300"
-            >
-              增强上传
-            </Link>
-            <Link
-              href="/storage-test"
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 border-b-2 border-transparent hover:border-gray-300"
-            >
-              功能测试
-            </Link>
-          </div>
         </div>
 
-        {/* 错误提示 */}
-        <ErrorAlert 
-          error={error} 
-          onDismiss={() => setError(null)}
-          autoDismiss={true}
-          autoDismissDelay={5000}
-        />
 
-        {/* 批量文件上传组件 */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <MultiFileUpload 
-            onUploadComplete={handleUploadComplete}
-            onError={handleUploadError}
-            maxFiles={10}
-            allowMultiple={true}
-          />
+
+        {/* 主要功能区域 - Ghibli风格转换 */}
+        <div className="animate-fadeInUp" style={{animationDelay: '0.8s'}}>
+          <GhibliTransform />
         </div>
 
-        {/* 批量上传成功提示 */}
-        {uploadedFiles.length > 0 && (
-          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-green-800">
-                  成功上传 {uploadedFiles.length} 个文件！
-                </p>
-                <div className="mt-3 space-y-2">
-                  {uploadedFiles.map((uploadedFile, index) => (
-                    <div key={index} className="bg-white rounded p-3 border border-green-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-gray-800">
-                            {uploadedFile.data?.originalName}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            大小: {uploadedFile.data?.fileSize ? (uploadedFile.data.fileSize / 1024 / 1024).toFixed(2) : '0'}MB
-                            {uploadedFile.data?.mode === 'local' && (
-                              <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                本地模式
-                              </span>
-                            )}
-                            {uploadedFile.data?.databaseSaved === false && uploadedFile.data?.mode !== 'local' && (
-                              <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                数据库未保存
-                              </span>
-                            )}
-                            {uploadedFile.data?.databaseSaved === true && (
-                              <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                已保存到MongoDB
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                        {uploadedFile.data?.fileUrl && (
-                          <a 
-                            href={uploadedFile.data.fileUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:text-blue-800 underline ml-3"
-                          >
-                            查看文件
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
       </main>
     </div>

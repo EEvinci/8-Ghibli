@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import GoogleSignInButton from '../components/GoogleSignInButton';
+import MockLoginButton from '../components/MockLoginButton';
 
 /**
  * 登录页面组件
@@ -103,6 +104,28 @@ export default function LoginPage() {
             size="large"
             variant="outline"
           />
+          
+          {/* 开发环境分隔线 */}
+          {process.env.NODE_ENV === 'development' && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">开发环境</span>
+                </div>
+              </div>
+              
+              <MockLoginButton className="w-full" />
+              
+              <div className="text-center">
+                <p className="text-xs text-gray-500">
+                  💡 开发模式：跳过Google OAuth，直接模拟登录
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 功能介绍 */}
